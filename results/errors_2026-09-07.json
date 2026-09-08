@@ -1,0 +1,9 @@
+{
+    "date": "2026-09-07",
+    "error_count": 3,
+    "errors": [
+        "Gemini JSON 파싱/검증 1차 실패, 재시도 중: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.6-flash for the latest features and improvements. We recommend you to use the Interactions API.', 'status': 'NOT_FOUND'}}",
+        "Gemini JSON 파싱/검증 최종 실패: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.6-flash for the latest features and improvements. We recommend you to use the Interactions API.', 'status': 'NOT_FOUND'}}",
+        "Kakao 검색 결과 없음: '제주 저녁 맛집'"
+    ]
+}

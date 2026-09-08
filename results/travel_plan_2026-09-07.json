@@ -1,0 +1,8 @@
+{
+    "recommended_city": "제주",
+    "weather": "정보 없음",
+    "events": [
+        "정보 없음"
+    ],
+    "reason": "LLM 응답 검증 실패로 인해 기본 도시(제주)로 대체되었습니다."
+}
