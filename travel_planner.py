@@ -1,10 +1,10 @@
 import argparse
+import datetime
 import json
 import os
 import sys
 from dotenv import load_dotenv
 from google import genai
-from google.genai import types
 import requests
 
 # .env 파일 로드
@@ -18,6 +18,15 @@ if not GEMINI_API_KEY or not KAKAO_REST_API_KEY:
   sys.exit(1)
 
 client = genai.Client(api_key=GEMINI_API_KEY)
+
+
+def validate_date_format(date_str: str) -> bool:
+  """입력된 날짜 형식이 YYYY-MM-DD에 맞는지 검증합니다."""
+  try:
+    datetime.datetime.strptime(date_str, "%Y-%m-%d")
+    return True
+  except ValueError:
+    return False
 
 
 def get_travel_itinerary(travel_date: str, errors: list):
@@ -38,7 +47,7 @@ def get_travel_itinerary(travel_date: str, errors: list):
   for attempt in range(2):
     try:
       response = client.models.generate_content(
-          model="gemini-3.6-flash",
+          model="gemini-2.5-flash",
           contents=prompt,
       )
       raw_text = response.text.strip()
@@ -104,10 +113,36 @@ def main():
   )
   args = parser.parse_args()
 
+  # 날짜 형식 검증
+  if not validate_date_format(args.date):
+    print(
+        f"❌ 오류: 날짜 형식이 올바르지 않습니다 ('{args.date}'). YYYY-MM-DD"
+        " 형식으로 입력해주세요."
+    )
+    sys.exit(1)
+
+  # results 폴더 생성
+  os.makedirs("results", exist_ok=True)
+  md_filename = os.path.join("results", f"travel_plan_{args.date}.md")
+  json_filename = os.path.join("results", f"travel_plan_{args.date}.json")
+
   runtime_errors = []
 
-  print(f"[1/3] '{args.date}' 기준 맞춤형 여행 일정 데이터 수집 중 (Gemini)...")
-  itinerary_data = get_travel_itinerary(args.date, runtime_errors)
+  # 캐시 체크: 이미 해당 날짜의 JSON/MD 결과가 존재하면 API 호출을 건너뜁니다.
+  if os.path.exists(json_filename) and os.path.exists(md_filename):
+    print(
+        f"⚡ [캐시 적중] '{args.date}'에 대한 기존 결과가 존재하여 API 호출을"
+        " 생략하고 기존 파일을 로드합니다."
+    )
+    with open(json_filename, "r", encoding="utf-8") as f:
+      itinerary_data = json.load(f)
+  else:
+    print(f"[1/3] '{args.date}' 기준 맞춤형 여행 일정 데이터 수집 중 (Gemini)...")
+    itinerary_data = get_travel_itinerary(args.date, runtime_errors)
+
+    # 원본 JSON 저장
+    with open(json_filename, "w", encoding="utf-8") as f:
+      json.dump(itinerary_data, f, ensure_ascii=False, indent=4)
 
   city = itinerary_data.get("recommended_city", "제주")
   weather = itinerary_data.get("weather", "정보 없음")
@@ -163,18 +198,16 @@ def main():
   else:
     markdown_content += "- 데이터 없음\n"
 
-  # 에러가 있을 때만 마크다운에 에러 섹션 추가
   if runtime_errors:
     markdown_content += "\n---\n\n"
     markdown_content += "## ⚠️ 실행 중 발생한 오류 요약 (Errors)\n"
     for err in runtime_errors:
       markdown_content += f"- {err}\n"
 
-  filename = f"travel_plan_{args.date}.md"
-  with open(filename, "w", encoding="utf-8") as f:
+  with open(md_filename, "w", encoding="utf-8") as f:
     f.write(markdown_content)
 
-  print(f"\n[3/3] 🎉 여행 계획서가 '{filename}' 파일로 성공적으로 생성되었습니다!")
+  print(f"\n[3/3] 🎉 여행 계획서가 '{md_filename}' 파일로 성공적으로 생성되었습니다!")
   if runtime_errors:
     print(
         f"⚠️ 실행 중 {len(runtime_errors)}개의 경고/오류가 발생했으나 리포트"
@@ -186,3 +219,4 @@ def main():
 
 if __name__ == "__main__":
   main()
+  
