@@ -26,6 +26,4 @@
 ---
 
 ## ⚠️ 실행 중 발생한 오류 요약 (Errors)
-- Gemini JSON 파싱 1차 실패, 재시도 중: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.6-flash for the latest features and improvements. We recommend you to use the Interactions API.', 'status': 'NOT_FOUND'}}
-- Gemini JSON 파싱 최종 실패: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.6-flash for the latest features and improvements. We recommend you to use the Interactions API.', 'status': 'NOT_FOUND'}}
 - Kakao 검색 결과 없음: '제주 저녁 맛집'
